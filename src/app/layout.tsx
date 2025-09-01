@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { I18nProvider } from "@/lib/i18n";
+import LangSwitcher from "@/components/LangSwitcher";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +26,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}>
+        <I18nProvider>
+          <header className="w-full border-b border-black/10 dark:border-white/20 sticky top-0 bg-background/80 backdrop-blur z-10">
+            <div className="mx-auto max-w-4xl px-4 py-3 flex items-center justify-between">
+              <a href="/" className="font-semibold tracking-tight">EzClaim</a>
+              <nav className="flex items-center gap-4">
+                <a className="hover:underline" href="/claim/new">New Claim</a>
+                <LangSwitcher />
+              </nav>
+            </div>
+          </header>
+          <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+          <footer className="mx-auto max-w-4xl px-4 py-8 text-sm text-black/60 dark:text-white/60">
+            © {new Date().getFullYear()} EzClaim
+          </footer>
+        </I18nProvider>
       </body>
     </html>
   );

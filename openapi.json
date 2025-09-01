@@ -1,0 +1,1435 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "EzClaim API",
+        "description": "API for claims, tags, photos, audit events.",
+        "contact": {
+            "name": "EzClaim"
+        },
+        "version": "v1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Claims",
+            "description": "Operations on claims"
+        },
+        {
+            "name": "Audit Events",
+            "description": "Search and read audit events"
+        },
+        {
+            "name": "Photos",
+            "description": "Manage photo records and presigned URLs"
+        },
+        {
+            "name": "Tags",
+            "description": "Manage tags/labels"
+        },
+        {
+            "name": "Auth",
+            "description": "Authentication endpoints"
+        }
+    ],
+    "paths": {
+        "/api/tags/{id}": {
+            "get": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Get tag by id",
+                "description": "Public access",
+                "operationId": "get",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Update tag",
+                "description": "Requires TAG_WRITE scope",
+                "operationId": "update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Delete tag",
+                "description": "Requires TAG_WRITE scope",
+                "operationId": "delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tags": {
+            "get": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "List tags",
+                "description": "Public access",
+                "operationId": "list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Create tag",
+                "description": "Requires TAG_WRITE scope",
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/photos": {
+            "get": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "List photos",
+                "description": "Requires PHOTO_READ scope",
+                "operationId": "list_1",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PhotoResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "Create photo record",
+                "description": "Public: create a record after uploading.",
+                "operationId": "create_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhotoCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PhotoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PhotoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/photos/presign-upload": {
+            "post": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "Presign upload",
+                "description": "Public: returns a presigned PUT URL and headers for upload.",
+                "operationId": "presignUpload",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhotoUploadRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/claims": {
+            "get": {
+                "tags": [
+                    "Claims"
+                ],
+                "summary": "List claims",
+                "description": "Requires CLAIM_READ scope.",
+                "operationId": "list_2",
+                "responses": {
+                    "200": {
+                        "description": "List of claims returned",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ClaimResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Claims"
+                ],
+                "summary": "Create claim",
+                "description": "Anonymous users may create claims.",
+                "operationId": "create_2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClaimRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login for demo users",
+                "description": "Returns a JWT token for demo credentials.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authenticated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/claims/{id}": {
+            "get": {
+                "tags": [
+                    "Claims"
+                ],
+                "summary": "Get claim by id",
+                "description": "Public access; if the claim is password-protected, provide password or use privileged token.",
+                "operationId": "get_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Password for protected claim",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Claim returned",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (if using token)"
+                    },
+                    "403": {
+                        "description": "Password required or invalid"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Claims"
+                ],
+                "summary": "Delete claim",
+                "description": "Requires CLAIM_WRITE scope.",
+                "operationId": "delete_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Claims"
+                ],
+                "summary": "Patch claim",
+                "description": "Anonymous may update limited fields with password; privileged token required for other fields.",
+                "operationId": "patch",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClaimPatchRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (if using token)"
+                    },
+                    "403": {
+                        "description": "Not allowed"
+                    }
+                }
+            }
+        },
+        "/api/photos/{id}": {
+            "get": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "Get photo by id",
+                "description": "Public access",
+                "operationId": "get_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PhotoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PhotoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "Delete photo",
+                "description": "Requires PHOTO_DELETE scope; optionally delete underlying object.",
+                "operationId": "delete_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "deleteObject",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/photos/{id}/download-url": {
+            "get": {
+                "tags": [
+                    "Photos"
+                ],
+                "summary": "Presign download",
+                "description": "Public: returns a presigned GET URL to download the object.",
+                "operationId": "presignDownload",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expiresInSeconds",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/audit-events": {
+            "get": {
+                "tags": [
+                    "Audit Events"
+                ],
+                "summary": "Search audit events",
+                "description": "Requires AUDIT scope",
+                "operationId": "list_3",
+                "parameters": [
+                    {
+                        "name": "entityType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "entityId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "occurredAt,desc"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageAuditEventResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/audit-events/{id}": {
+            "get": {
+                "tags": [
+                    "Audit Events"
+                ],
+                "summary": "Get audit event",
+                "description": "Requires AUDIT scope",
+                "operationId": "get_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditEventResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditEventResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TagRequest": {
+                "type": "object",
+                "description": "Create or update a tag",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "example": "Travel",
+                        "minLength": 1
+                    },
+                    "color": {
+                        "type": "string",
+                        "example": "#0ea5e9",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "color",
+                    "label"
+                ]
+            },
+            "TagResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "6650ee08cdb9303e0b73b0a2"
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Travel"
+                    },
+                    "color": {
+                        "type": "string",
+                        "example": "#0ea5e9"
+                    }
+                }
+            },
+            "PhotoCreateRequest": {
+                "type": "object",
+                "description": "Create a Photo record after uploading",
+                "properties": {
+                    "bucket": {
+                        "type": "string",
+                        "description": "Bucket name (optional)"
+                    },
+                    "key": {
+                        "type": "string",
+                        "description": "Uploaded object key",
+                        "example": "photos/2025/08/uuid.jpg",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "key"
+                ]
+            },
+            "PhotoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "6650eac3bfa5e7a3e9d1a2bc"
+                    },
+                    "bucket": {
+                        "type": "string",
+                        "example": "ezclaim-dev"
+                    },
+                    "key": {
+                        "type": "string",
+                        "example": "photos/2025/08/uuid.jpg"
+                    },
+                    "uploadedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-12T10:00:00Z"
+                    }
+                }
+            },
+            "PhotoUploadRequest": {
+                "type": "object",
+                "description": "Request to presign an upload",
+                "properties": {
+                    "bucket": {
+                        "type": "string",
+                        "description": "Bucket name (optional)"
+                    },
+                    "key": {
+                        "type": "string",
+                        "description": "Object key (optional; UUID if empty)"
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "description": "Content-Type, e.g. image/jpeg"
+                    },
+                    "expiresInSeconds": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "URL expiry in seconds",
+                        "example": 900
+                    }
+                }
+            },
+            "ClaimRequest": {
+                "type": "object",
+                "description": "Payload to create a claim",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Short title of the claim",
+                        "example": "Conference Ticket",
+                        "minLength": 1
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional longer description",
+                        "example": "Ticket for QCon 2025"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Initial status (optional)",
+                        "enum": [
+                            "UNKNOWN",
+                            "SUBMITTED",
+                            "APPROVED",
+                            "PAID",
+                            "FINISHED",
+                            "REJECTED",
+                            "WITHDRAW"
+                        ]
+                    },
+                    "photoIds": {
+                        "type": "array",
+                        "description": "IDs of uploaded photos to attach",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "tagIds": {
+                        "type": "array",
+                        "description": "IDs of tags to attach",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount to reimburse",
+                        "example": 199.99
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency (defaults to CHF)",
+                        "enum": [
+                            "CHF",
+                            "USD",
+                            "EUR",
+                            "CNY",
+                            "GBP"
+                        ],
+                        "example": "CHF"
+                    },
+                    "payout": {
+                        "$ref": "#/components/schemas/PayoutInfo",
+                        "description": "Payout destination info"
+                    },
+                    "recipient": {
+                        "type": "string",
+                        "description": "Recipient display name",
+                        "example": "Alice"
+                    },
+                    "expenseAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the expense occurred (ISO-8601)",
+                        "example": "2025-08-12T09:30:00Z"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Optional password to protect claim",
+                        "example": "secret123"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "expenseAt",
+                    "payout",
+                    "title"
+                ]
+            },
+            "PayoutInfo": {
+                "type": "object",
+                "properties": {
+                    "bankName": {
+                        "type": "string",
+                        "example": "ACME Bank"
+                    },
+                    "accountNumber": {
+                        "type": "string",
+                        "example": 123456789
+                    },
+                    "iban": {
+                        "type": "string",
+                        "example": "CH93 0076 2011 6238 5295 7"
+                    },
+                    "swift": {
+                        "type": "string",
+                        "example": "POFICHBEXXX"
+                    },
+                    "routingNumber": {
+                        "type": "string",
+                        "example": "021000021"
+                    },
+                    "bankAddress": {
+                        "type": "string",
+                        "example": "Some Street 1, 8000 Zurich"
+                    }
+                }
+            },
+            "ClaimResponse": {
+                "type": "object",
+                "description": "Claim representation",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "664a0c2f7b1f3c2d9b7c9a10"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Conference Ticket"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Ticket for QCon 2025"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "UNKNOWN",
+                            "SUBMITTED",
+                            "APPROVED",
+                            "PAID",
+                            "FINISHED",
+                            "REJECTED",
+                            "WITHDRAW"
+                        ],
+                        "example": "SUBMITTED"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-12T09:31:00Z"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-12T09:31:00Z"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "example": 199.99
+                    },
+                    "currency": {
+                        "type": "string",
+                        "enum": [
+                            "CHF",
+                            "USD",
+                            "EUR",
+                            "CNY",
+                            "GBP"
+                        ],
+                        "example": "CHF"
+                    },
+                    "recipient": {
+                        "type": "string",
+                        "example": "Alice"
+                    },
+                    "expenseAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-10T14:00:00Z"
+                    },
+                    "payout": {
+                        "$ref": "#/components/schemas/PayoutInfo"
+                    },
+                    "photos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PhotoResponse"
+                        }
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResponse"
+                        }
+                    }
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "admin",
+                        "minLength": 1
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "ezclaim-password",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "password",
+                    "username"
+                ]
+            },
+            "ClaimPatchRequest": {
+                "type": "object",
+                "description": "Fields to update on a claim",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Title (admin only)"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description (admin only)"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "New status with transition rules",
+                        "enum": [
+                            "UNKNOWN",
+                            "SUBMITTED",
+                            "APPROVED",
+                            "PAID",
+                            "FINISHED",
+                            "REJECTED",
+                            "WITHDRAW"
+                        ]
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount (admin only)"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency (admin only)",
+                        "enum": [
+                            "CHF",
+                            "USD",
+                            "EUR",
+                            "CNY",
+                            "GBP"
+                        ]
+                    },
+                    "payout": {
+                        "$ref": "#/components/schemas/PayoutInfo",
+                        "description": "Payout info (admin only)"
+                    },
+                    "recipient": {
+                        "type": "string",
+                        "description": "Recipient (admin only)"
+                    },
+                    "expenseAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Expense time (admin only)"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Password for anonymous updates"
+                    }
+                }
+            },
+            "AuditEventResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "6650f1c0bca46a0c4cf9ee10"
+                    },
+                    "entityType": {
+                        "type": "string",
+                        "example": "CLAIM"
+                    },
+                    "entityId": {
+                        "type": "string",
+                        "example": "664a0c2f7b1f3c2d9b7c9a10"
+                    },
+                    "action": {
+                        "type": "string",
+                        "example": "UPDATED"
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-12T10:05:00Z"
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Event details as key-value map"
+                    }
+                }
+            },
+            "PageAuditEventResponse": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditEventResponse"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageableObject": {
+                "type": "object",
+                "properties": {
+                    "paged": {
+                        "type": "boolean"
+                    },
+                    "pageNumber": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "unpaged": {
+                        "type": "boolean"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "SortObject": {
+                "type": "object",
+                "properties": {
+                    "sorted": {
+                        "type": "boolean"
+                    },
+                    "unsorted": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
