@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-export type Lang = "zh" | "en" | "de-CH" | "fr";
+export type Lang = "zh" | "en" | "de-CH" | "fr" | "it";
 
 type Ctx = {
   lang: Lang;
@@ -14,9 +14,9 @@ const I18nContext = createContext<Ctx | null>(null);
 
 const dict: Record<Lang, Record<string, string>> = {
   zh: {
-    brand: "EzClaim",
-    welcome: "欢迎使用 EzClaim",
-    tagline: "一个简单、专业、适配手机与桌面的报销系统。",
+    brand: "ACSSZ 报销系统",
+    welcome: "欢迎使用 ACSSZ 报销系统",
+    tagline: "一套简单、专业、适配手机与桌面的 ACSSZ 报销系统。",
     newClaim: "新建报销单",
     adminSoon: "管理端（即将提供）",
     openExisting: "打开已有报销单",
@@ -68,9 +68,9 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "确认",
   },
   en: {
-    brand: "EzClaim",
-    welcome: "Welcome to EzClaim",
-    tagline: "A simple, professional reimbursement app for mobile and desktop.",
+    brand: "ACSSZ Reimbursement",
+    welcome: "Welcome to the ACSSZ Reimbursement System",
+    tagline: "A simple, professional ACSSZ reimbursement system for mobile and desktop.",
     newClaim: "New Claim (anonymous)",
     adminSoon: "Admin (coming soon)",
     openExisting: "Open Existing Claim",
@@ -122,9 +122,9 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "Confirm",
   },
   "de-CH": {
-    brand: "EzClaim",
-    welcome: "Willkommen bei EzClaim",
-    tagline: "Eine einfache, professionelle Spesenlösung für Mobil und Desktop.",
+    brand: "ACSSZ Spesen",
+    welcome: "Willkommen beim ACSSZ-Spesensystem",
+    tagline: "Ein einfaches, professionelles ACSSZ-Spesensystem für Mobil und Desktop.",
     newClaim: "Neue Spesen",
     adminSoon: "Admin (bald verfügbar)",
     openExisting: "Vorhandene Spesen öffnen",
@@ -176,9 +176,9 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "Bestätigen",
   },
   fr: {
-    brand: "EzClaim",
-    welcome: "Bienvenue sur EzClaim",
-    tagline: "Une application de notes de frais simple et professionnelle.",
+    brand: "Remboursement ACSSZ",
+    welcome: "Bienvenue sur le système de remboursement ACSSZ",
+    tagline: "Un système de remboursement ACSSZ simple et professionnel pour mobile et desktop.",
     newClaim: "Nouvelle note",
     adminSoon: "Admin (bientôt)",
     openExisting: "Ouvrir une note existante",
@@ -229,6 +229,60 @@ const dict: Record<Lang, Record<string, string>> = {
     cancel: "Annuler",
     confirm: "Confirmer",
   },
+  it: {
+    brand: "Rimborsi ACSSZ",
+    welcome: "Benvenuto nel sistema di rimborsi ACSSZ",
+    tagline: "Un sistema di rimborsi ACSSZ semplice e professionale per mobile e desktop.",
+    newClaim: "Nuova nota",
+    adminSoon: "Admin (presto)",
+    openExisting: "Apri una nota esistente",
+    claimId: "ID nota",
+    passwordOptional: "Password (opzionale)",
+    openClaim: "Apri la nota",
+    createTitle: "Crea nota",
+    fieldTitle: "Titolo",
+    fieldDescription: "Descrizione",
+    fieldAmount: "Importo",
+    fieldCurrency: "Valuta",
+    fieldExpenseAt: "Data della spesa",
+    fieldRecipient: "Beneficiario",
+    payoutInfo: "Informazioni di pagamento",
+    payoutIban: "IBAN",
+    payoutAccount: "Numero di conto",
+    payoutBankName: "Banca",
+    payoutSwift: "SWIFT",
+    payoutRouting: "Routing Number",
+    payoutBankAddress: "Indirizzo della banca",
+    tags: "Tag",
+    attachments: "Allegati (ricevute/foto)",
+    password: "Password (opzionale)",
+    passwordHint: "Puoi impostare una password. Sarà richiesta per vedere/modificare in seguito.",
+    submit: "Invia nota",
+    detailTitle: "Dettagli della nota",
+    refresh: "Aggiorna",
+    process: "Processo",
+    actions: "Azioni",
+    withdraw: "Ritira",
+    confirmFinish: "Conferma ricevuto, segna come completata",
+    amount: "Importo",
+    expenseAt: "Data della spesa",
+    createdAt: "Creato il",
+    updatedAt: "Aggiornato il",
+    recipient: "Beneficiario",
+    attachmentsShort: "Allegati",
+    status_UNKNOWN: "Sconosciuto",
+    status_SUBMITTED: "Inviata",
+    status_APPROVED: "Approvata",
+    status_PAID: "Pagata",
+    status_FINISHED: "Completata",
+    status_REJECTED: "Rifiutata",
+    status_WITHDRAW: "Ritirata",
+    claimIdNote: "Tratta questo ID come una password. Mantienilo privato.",
+    copy: "Copia",
+    enterPassword: "Inserisci la password",
+    cancel: "Annulla",
+    confirm: "Conferma",
+  },
 };
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
@@ -240,6 +294,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       if (nav.startsWith('de')) return 'de-CH';
       if (nav.startsWith('fr')) return 'fr';
       if (nav.startsWith('en')) return 'en';
+      if (nav.startsWith('it')) return 'it';
     }
     return 'zh';
   });
@@ -247,8 +302,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     setLangState(l);
     try { localStorage.setItem('lang', l); } catch {}
   };
-  const t = (key: string) => dict[lang][key] ?? key;
-  const value = useMemo(() => ({ lang, t, setLang }), [lang]);
+  const t = useCallback((key: string) => dict[lang][key] ?? key, [lang]);
+  const value = useMemo(() => ({ lang, t, setLang }), [lang, t]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

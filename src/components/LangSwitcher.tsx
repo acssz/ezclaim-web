@@ -9,6 +9,7 @@ export default function LangSwitcher() {
     { code: 'en', label: 'English' },
     { code: 'de-CH', label: 'Deutsch (CH)' },
     { code: 'fr', label: 'Français' },
+    { code: 'it', label: 'Italiano' },
   ];
   return (
     <select
@@ -23,4 +24,3 @@ export default function LangSwitcher() {
     </select>
   );
 }
-

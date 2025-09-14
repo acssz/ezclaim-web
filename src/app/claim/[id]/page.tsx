@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Api } from "@/lib/api";
+import { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Api, HttpError } from "@/lib/api";
 import type { ClaimResponse, ClaimStatus } from "@/lib/types";
 import { getClaimPassword, setClaimPassword } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -10,7 +11,6 @@ import { useI18n } from "@/lib/i18n";
 export default function ClaimDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id as string;
-  const router = useRouter();
   const { t } = useI18n();
 
   const [claim, setClaim] = useState<ClaimResponse | null>(null);
@@ -26,15 +26,17 @@ export default function ClaimDetailPage() {
     if (!id) return;
     const saved = getClaimPassword(id);
     setEffectivePassword(saved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  async function load() {
+  const lastLoadIdRef = useRef(0);
+  const load = useCallback(async () => {
     if (!id) return;
+    const thisLoadId = ++lastLoadIdRef.current;
     setLoading(true);
     setError(undefined);
     try {
       const c = await Api.getClaim(id, effectivePassword || undefined);
+      if (lastLoadIdRef.current !== thisLoadId) return;
       setClaim(c);
       // Fetch download URLs for each photo
       if (c.photos && c.photos.length) {
@@ -48,27 +50,28 @@ export default function ClaimDetailPage() {
             }
           })
         );
+        if (lastLoadIdRef.current !== thisLoadId) return;
         setDownUrls(Object.fromEntries(entries));
       } else {
         setDownUrls({});
       }
-    } catch (e: any) {
-      if (e?.status === 403 || e?.status === 401) {
+    } catch (e: unknown) {
+      if (e instanceof HttpError && (e.status === 401 || e.status === 403)) {
         // Need or wrong password → open modal
         setAskPassword(true);
       } else {
-        setError(e?.message || "加载失败");
+        const msg = e instanceof Error ? e.message : '加载失败';
+        setError(msg);
       }
       setClaim(null);
     } finally {
-      setLoading(false);
+      if (lastLoadIdRef.current === thisLoadId) setLoading(false);
     }
-  }
+  }, [id, effectivePassword]);
 
   useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, effectivePassword]);
+    void load();
+  }, [load]);
 
   function fmt(dt: string) {
     try {
@@ -86,8 +89,8 @@ export default function ClaimDetailPage() {
     return Date.now() > t - 30_000;
   }
 
-  async function ensureFreshUrl(photoId: string) {
-    const current = downUrls[photoId];
+  const ensureFreshUrl = useCallback(async (photoId: string) => {
+    const current = downUrlsRef.current[photoId];
     if (!current || !current.url || isExpired(current.expiresAt)) {
       try {
         const d = await Api.getPhotoDownloadUrl(photoId, 900);
@@ -96,22 +99,25 @@ export default function ClaimDetailPage() {
         // ignore
       }
     }
-  }
+  }, []);
 
   // Periodically refresh nearing-expiry URLs while on page
+  const downUrlsRef = useRef(downUrls);
+  useEffect(() => {
+    downUrlsRef.current = downUrls;
+  }, [downUrls]);
   useEffect(() => {
     if (!claim?.photos?.length) return;
     const iv = setInterval(() => {
       for (const p of claim.photos!) {
-        const entry = downUrls[p.id];
+        const entry = downUrlsRef.current[p.id];
         if (!entry || isExpired(entry.expiresAt)) {
           void ensureFreshUrl(p.id);
         }
       }
     }, 60_000);
     return () => clearInterval(iv);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claim, downUrls]);
+  }, [claim?.photos, ensureFreshUrl]);
 
   async function updateStatus(newStatus: ClaimStatus) {
     if (!id) return;
@@ -120,9 +126,9 @@ export default function ClaimDetailPage() {
     try {
       const updated = await Api.patchClaim(id, { status: newStatus, password: effectivePassword || undefined });
       setClaim(updated);
-    } catch (e: any) {
-      if (e?.status === 403) setAskPassword(true);
-      else setError(e?.message || "更新失败");
+    } catch (e: unknown) {
+      if (e instanceof HttpError && e.status === 403) setAskPassword(true);
+      else setError(e instanceof Error ? e.message : '更新失败');
     } finally {
       setUpdating(false);
     }
@@ -141,7 +147,7 @@ export default function ClaimDetailPage() {
         <h1 className="text-2xl font-semibold">{t('detailTitle')}</h1>
         <div className="flex items-center gap-2">
           <button onClick={copyLink} className="px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('copy')}</button>
-          <a href="/claim/new" className="px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('newClaim')}</a>
+          <Link href="/claim/new" className="px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('newClaim')}</Link>
         </div>
       </div>
 
@@ -154,7 +160,7 @@ export default function ClaimDetailPage() {
 
       {/* Password Modal */}
       {askPassword && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-sm rounded bg-background p-4 border">
             <h3 className="font-medium mb-2">请输入访问密码</h3>
             <PasswordPrompt
@@ -242,6 +248,7 @@ export default function ClaimDetailPage() {
                       key={p.id}
                       href={url || '#'}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="block border rounded overflow-hidden"
                       onMouseEnter={() => ensureFreshUrl(p.id)}
                       onFocus={() => ensureFreshUrl(p.id)}

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { setClaimPassword } from "@/lib/auth";
 
@@ -23,7 +24,7 @@ export default function Home() {
         <h1 className="text-3xl font-semibold tracking-tight">{t('welcome')}</h1>
         <p className="text-black/70 dark:text-white/70">{t('tagline')}</p>
         <div className="flex gap-3">
-          <a href="/claim/new" className="px-4 py-2 rounded bg-foreground text-background font-medium">{t('newClaim')}</a>
+          <Link href="/claim/new" className="px-4 py-2 rounded bg-foreground text-background font-medium">{t('newClaim')}</Link>
           <a href="#" className="px-4 py-2 rounded border" onClick={(e) => { e.preventDefault(); alert(t('adminSoon')); }}>{t('adminSoon')}</a>
         </div>
       </section>

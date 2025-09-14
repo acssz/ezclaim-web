@@ -29,7 +29,7 @@ const currencies: Currency[] = ["CHF", "USD", "EUR", "CNY", "GBP"];
 
 function makeObjectKey(file: File): string {
   const today = new Date().toISOString().slice(0, 10);
-  const uuid = typeof crypto !== "undefined" && "randomUUID" in crypto ? (crypto as any).randomUUID() : Math.random().toString(36).slice(2);
+  const uuid = (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)) as string;
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
   return `uploads/${today}/${uuid}_${safeName}`;
 }
@@ -74,8 +74,9 @@ export default function NewClaimPage() {
         setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "creating" } : u)));
         const photo = await Api.createPhotoRecord({ key: item.key });
         setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "done", photo } : u)));
-      } catch (e: any) {
-        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error", error: e?.message || String(e) } : u)));
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error", error: msg } : u)));
       }
     }
   }
@@ -121,8 +122,8 @@ export default function NewClaimPage() {
       } catch {}
       // Navigate to detail without exposing password in URL
       router.push(`/claim/${created.id}`);
-    } catch (e: any) {
-      setError(e?.message || "提交失败");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "提交失败");
     } finally {
       setSubmitting(false);
     }
