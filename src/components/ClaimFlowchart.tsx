@@ -93,9 +93,10 @@ export function ClaimFlowchart({ current }: Props) {
         const active = isActive(from) && (isActive(to) || current === to);
         const stroke = active ? palette.edgeActive : palette.edge;
         g.setEdge(from, to, {
-          arrowhead: "vee",
+          arrowhead: "thin",
           lineInterpolate: "bundle",
-          style: `stroke: ${stroke}; fill: ${stroke}; stroke-width: 1.4px;`,
+          // Use thin line and no fill to avoid thick triangular arrows
+          style: `stroke: ${stroke}; fill: none; stroke-width: 1px;`,
         });
       };
 
@@ -111,6 +112,29 @@ export function ClaimFlowchart({ current }: Props) {
       const inner = svg.append("g");
 
       const render = new dagreD3.render();
+
+      // Custom thin arrowhead (V-shape, no fill) matching edge color
+      (render as any).arrows().thin = function (parent: any, id: string, edge: any) {
+        const marker = parent
+          .append("marker")
+          .attr("id", id)
+          .attr("viewBox", "0 0 10 10")
+          .attr("refX", 9)
+          .attr("refY", 5)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto");
+
+        const m = (edge?.style || "").match(/stroke:\s*([^;]+)/i);
+        const stroke = (m ? m[1].trim() : palette.edge);
+
+        marker
+          .append("path")
+          .attr("d", "M 0 0 L 10 5 L 0 10")
+          .attr("fill", "none")
+          .attr("stroke", stroke)
+          .attr("stroke-width", 1);
+      };
       render(inner, g);
 
       // Smooth corner rectangles
@@ -142,4 +166,3 @@ export function ClaimFlowchart({ current }: Props) {
     </div>
   );
 }
-

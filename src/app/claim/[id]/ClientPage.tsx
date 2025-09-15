@@ -143,6 +143,26 @@ export default function ClientPage() {
     navigator.clipboard?.writeText(u.toString()).catch(() => {});
   }
 
+  // Require password: render only the password prompt, hide page content
+  if (askPassword) {
+    return (
+      <div className="w-full min-h-[50vh] flex items-center justify-center">
+        <div className="w-full max-w-sm rounded bg-background p-4 border">
+          <h3 className="font-medium mb-2">请输入访问密码</h3>
+          <PasswordPrompt
+            onSubmit={(pwd) => {
+              if (!id) return;
+              setClaimPassword(id, pwd);
+              setEffectivePassword(pwd);
+              setAskPassword(false);
+            }}
+            onCancel={() => setAskPassword(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
@@ -160,23 +180,7 @@ export default function ClientPage() {
       {loading && <div>加载中...</div>}
       {error && <div className="text-red-600 text-sm">{error}</div>}
 
-      {/* Password Modal */}
-      {askPassword && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-sm rounded bg-background p-4 border">
-            <h3 className="font-medium mb-2">请输入访问密码</h3>
-            <PasswordPrompt
-              onSubmit={(pwd) => {
-                if (!id) return;
-                setClaimPassword(id, pwd);
-                setEffectivePassword(pwd);
-                setAskPassword(false);
-              }}
-              onCancel={() => setAskPassword(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* When askPassword is true we early-return above, so no content leaks */}
 
       {claim && (
         <div className="space-y-4">
