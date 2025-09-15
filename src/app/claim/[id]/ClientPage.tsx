@@ -20,6 +20,7 @@ export default function ClientPage() {
   const [error, setError] = useState<string | undefined>();
   const [effectivePassword, setEffectivePassword] = useState<string | undefined>(undefined);
   const [askPassword, setAskPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
   type DownUrl = { url: string; expiresAt?: string };
   const [downUrls, setDownUrls] = useState<Record<string, DownUrl>>({});
   const [updating, setUpdating] = useState(false);
@@ -61,6 +62,8 @@ export default function ClientPage() {
       if (e instanceof HttpError && (e.status === 401 || e.status === 403)) {
         // Need or wrong password → open modal
         setAskPassword(true);
+        // If we already tried with a password, mark error to display feedback
+        setPasswordError(!!effectivePassword);
       } else {
         const msg = e instanceof Error ? e.message : '加载失败';
         setError(msg);
@@ -129,8 +132,10 @@ export default function ClientPage() {
       const updated = await Api.patchClaim(id, { status: newStatus, password: effectivePassword || undefined });
       setClaim(updated);
     } catch (e: unknown) {
-      if (e instanceof HttpError && e.status === 403) setAskPassword(true);
-      else setError(e instanceof Error ? e.message : '更新失败');
+      if (e instanceof HttpError && e.status === 403) {
+        setAskPassword(true);
+        setPasswordError(!!effectivePassword);
+      } else setError(e instanceof Error ? e.message : '更新失败');
     } finally {
       setUpdating(false);
     }
@@ -155,8 +160,10 @@ export default function ClientPage() {
               setClaimPassword(id, pwd);
               setEffectivePassword(pwd);
               setAskPassword(false);
+              setPasswordError(false);
             }}
-            onCancel={() => setAskPassword(false)}
+            onCancel={() => { setAskPassword(false); setPasswordError(false); }}
+            error={passwordError}
           />
         </div>
       </div>
@@ -300,7 +307,7 @@ export default function ClientPage() {
   );
 }
 
-function PasswordPrompt({ onSubmit, onCancel }: { onSubmit: (pwd: string) => void; onCancel: () => void }) {
+function PasswordPrompt({ onSubmit, onCancel, error }: { onSubmit: (pwd: string) => void; onCancel: () => void; error?: boolean }) {
   const [v, setV] = useState('');
   const { t } = useI18n();
   return (
@@ -312,6 +319,7 @@ function PasswordPrompt({ onSubmit, onCancel }: { onSubmit: (pwd: string) => voi
       }}
       className="space-y-3"
     >
+      {error && <div className="text-sm text-red-600">{t('passwordWrong')}</div>}
       <input autoFocus type="password" value={v} onChange={(e) => setV(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('enterPassword')} />
       <div className="flex justify-end gap-2">
         <button type="button" className="px-3 py-1.5 rounded border" onClick={onCancel}>{t('cancel')}</button>
