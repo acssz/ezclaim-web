@@ -121,7 +121,7 @@ export default function NewClaimPage() {
         }
       } catch {}
       // Navigate to detail without exposing password in URL
-      router.push(`/claim/${created.id}`);
+      router.push(`/claim/view?id=${encodeURIComponent(created.id)}`);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "提交失败");
     } finally {

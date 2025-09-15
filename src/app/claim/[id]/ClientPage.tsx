@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Api, HttpError } from "@/lib/api";
 import type { ClaimResponse, ClaimStatus } from "@/lib/types";
 import { getClaimPassword, setClaimPassword } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { ClaimFlowchart } from "@/components/ClaimFlowchart";
 
-export default function ClaimDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id as string;
+export default function ClientPage() {
+  const params = useParams<{ id?: string }>();
+  const searchParams = useSearchParams();
+  const id = (params?.id as string) || searchParams?.get("id") || "";
   const { t } = useI18n();
 
   const [claim, setClaim] = useState<ClaimResponse | null>(null);
@@ -176,13 +178,12 @@ export default function ClaimDetailPage() {
         </div>
       )}
 
-          {claim && (
-            <div className="space-y-4">
-          
+      {claim && (
+        <div className="space-y-4">
           {/* 流程图 */}
           <section className="space-y-2">
             <h3 className="font-medium">{t('process')}</h3>
-            <FlowDiagram current={claim.status} />
+            <ClaimFlowchart current={claim.status} />
           </section>
 
           <section className="border rounded p-4">
@@ -313,66 +314,5 @@ function PasswordPrompt({ onSubmit, onCancel }: { onSubmit: (pwd: string) => voi
         <button type="submit" className="px-3 py-1.5 rounded bg-foreground text-background">{t('confirm')}</button>
       </div>
     </form>
-  );
-}
-
-function Node({ label, active, current }: { label: string; active?: boolean; current?: boolean }) {
-  return (
-    <div className={`text-xs px-2 py-1 rounded border text-center ${current ? 'bg-foreground text-background' : active ? 'border-foreground' : ''}`}>{label}</div>
-  );
-}
-
-function FlowDiagram({ current }: { current: ClaimStatus }) {
-  const { t } = useI18n();
-  // Branching graph:
-  // Row 1: SUBMITTED → APPROVED → PAID → FINISHED
-  // Row 2: down branches from SUBMITTED to WITHDRAW/REJECTED, from APPROVED to REJECTED
-  const order: ClaimStatus[] = ['SUBMITTED', 'APPROVED', 'PAID', 'FINISHED'];
-  const idx = order.indexOf(current);
-  const isActiveMain = (s: ClaimStatus, i: number) => idx >= 0 && i <= idx;
-  const labels: Record<ClaimStatus, string> = {
-    UNKNOWN: t('status_UNKNOWN'),
-    SUBMITTED: t('status_SUBMITTED'),
-    APPROVED: t('status_APPROVED'),
-    PAID: t('status_PAID'),
-    FINISHED: t('status_FINISHED'),
-    REJECTED: t('status_REJECTED'),
-    WITHDRAW: t('status_WITHDRAW'),
-  };
-  const isCurrent = (s: ClaimStatus) => current === s;
-  return (
-    <div className="inline-grid gap-2" style={{ gridTemplateColumns: 'repeat(7, minmax(0,1fr))' }}>
-      {/* Top row nodes and horizontal connectors */}
-      <Node label={labels.SUBMITTED} current={isCurrent('SUBMITTED')} active={isActiveMain('SUBMITTED', 0)} />
-      <div className="h-px w-full self-center bg-black/30 dark:bg-white/30" />
-      <Node label={labels.APPROVED} current={isCurrent('APPROVED')} active={isActiveMain('APPROVED', 1)} />
-      <div className="h-px w-full self-center bg-black/30 dark:bg-white/30" />
-      <Node label={labels.PAID} current={isCurrent('PAID')} active={isActiveMain('PAID', 2)} />
-      <div className="h-px w-full self-center bg-black/30 dark:bg-white/30" />
-      <Node label={labels.FINISHED} current={isCurrent('FINISHED')} active={isActiveMain('FINISHED', 3)} />
-
-      {/* Row 2 vertical connectors from SUBMITTED and APPROVED */}
-      <div className="w-px h-4 justify-self-center bg-black/30 dark:bg-white/30" />
-      <div />
-      <div className="w-px h-4 justify-self-center bg-black/30 dark:bg-white/30" />
-      <div />
-      <div />
-      <div />
-      <div />
-
-      {/* Row 3 branch nodes */}
-      <div className="flex gap-2 justify-center">
-        <Node label={labels.WITHDRAW} current={isCurrent('WITHDRAW')} />
-        <Node label={labels.REJECTED} current={isCurrent('REJECTED')} />
-      </div>
-      <div />
-      <div className="flex gap-2 justify-center">
-        <Node label={labels.REJECTED} current={isCurrent('REJECTED')} />
-      </div>
-      <div />
-      <div />
-      <div />
-      <div />
-    </div>
   );
 }

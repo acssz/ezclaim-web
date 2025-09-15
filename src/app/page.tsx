@@ -16,7 +16,7 @@ export default function Home() {
     try {
       if (pwd.trim()) setClaimPassword(id, pwd.trim());
     } catch {}
-    window.location.href = `/claim/${id}`;
+    window.location.href = `/claim/view?id=${encodeURIComponent(id)}`;
   }
   return (
     <div className="space-y-6">
