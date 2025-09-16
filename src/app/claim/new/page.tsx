@@ -52,6 +52,7 @@ export default function NewClaimPage() {
   const [expenseAt, setExpenseAt] = useState<string>(""); // yyyy-MM-ddTHH:mm
   const [recipient, setRecipient] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [password2, setPassword2] = useState<string>("");
   const [payout, setPayout] = useState<PayoutInfo>({});
 
   useEffect(() => {
@@ -88,6 +89,8 @@ export default function NewClaimPage() {
     if (!expenseAt) return "请选择消费发生时间";
     // minimal payout validation
     if (!payout.iban && !payout.accountNumber) return "请至少填写 IBAN 或 账户号";
+    // If password set, require confirmation match
+    if (password.trim() && password.trim() !== password2.trim()) return t('passwordMismatch');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -253,6 +256,7 @@ export default function NewClaimPage() {
           <h2 className="text-lg font-medium">{t('password')}</h2>
           <p className="text-sm text-black/60 dark:text-white/60">{t('passwordHint')}</p>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('password')} />
+          <input type="password" value={password2} onChange={(e) => setPassword2(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('passwordConfirm')} />
         </section>
 
         {error && <div className="text-sm text-red-600">{error}</div>}

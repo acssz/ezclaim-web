@@ -19,6 +19,7 @@ export default function ClientPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [effectivePassword, setEffectivePassword] = useState<string | undefined>(undefined);
+  const [passwordChecked, setPasswordChecked] = useState(false);
   const [askPassword, setAskPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   type DownUrl = { url: string; expiresAt?: string };
@@ -29,11 +30,12 @@ export default function ClientPage() {
     if (!id) return;
     const saved = getClaimPassword(id);
     setEffectivePassword(saved);
+    setPasswordChecked(true);
   }, [id]);
 
   const lastLoadIdRef = useRef(0);
   const load = useCallback(async () => {
-    if (!id) return;
+    if (!id || !passwordChecked) return;
     const thisLoadId = ++lastLoadIdRef.current;
     setLoading(true);
     setError(undefined);
@@ -72,7 +74,7 @@ export default function ClientPage() {
     } finally {
       if (lastLoadIdRef.current === thisLoadId) setLoading(false);
     }
-  }, [id, effectivePassword]);
+  }, [id, effectivePassword, passwordChecked]);
 
   useEffect(() => {
     void load();
@@ -149,7 +151,7 @@ export default function ClientPage() {
   }
 
   // Require password: render only the password prompt, hide page content
-  if (askPassword) {
+  if (askPassword && passwordChecked) {
     return (
       <div className="w-full min-h-[50vh] flex items-center justify-center">
         <div className="w-full max-w-sm rounded bg-background p-4 border">
@@ -175,7 +177,7 @@ export default function ClientPage() {
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t('detailTitle')}</h1>
         <div className="flex items-center gap-2">
-          <button onClick={copyLink} className="px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('copy')}</button>
+          <CopyButton onCopy={copyLink} label={t('copy')} doneLabel={t('copied')} />
           <Link href="/claim/new" className="px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('newClaim')}</Link>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function ClientPage() {
                 <div className="font-mono text-sm break-all">{claim.id}</div>
                 <div className="text-xs text-black/60 dark:text-white/60">{t('claimIdNote')}</div>
               </div>
-              <button onClick={() => navigator.clipboard?.writeText(claim.id)} className="shrink-0 px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10">{t('copy')}</button>
+              <CopyButton onCopy={() => navigator.clipboard?.writeText(claim.id)} label={t('copy')} doneLabel={t('copied')} className="shrink-0" />
             </div>
             {claim.description && <p className="mt-2 text-sm whitespace-pre-wrap">{claim.description}</p>}
             <div className="mt-3 grid gap-2 sm:grid-cols-2 text-sm">
@@ -326,5 +328,21 @@ function PasswordPrompt({ onSubmit, onCancel, error }: { onSubmit: (pwd: string)
         <button type="submit" className="px-3 py-1.5 rounded bg-foreground text-background">{t('confirm')}</button>
       </div>
     </form>
+  );
+}
+
+function CopyButton({ onCopy, label, doneLabel, className }: { onCopy: () => void | Promise<void>; label: string; doneLabel: string; className?: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try { await onCopy(); } catch {}
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      }}
+      className={(className ? className + ' ' : '') + "px-3 py-1.5 rounded border text-sm hover:bg-black/5 dark:hover:bg-white/10"}
+    >
+      {copied ? doneLabel : label}
+    </button>
   );
 }
