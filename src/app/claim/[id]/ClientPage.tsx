@@ -2,17 +2,23 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Api, HttpError } from "@/lib/api";
 import type { ClaimResponse, ClaimStatus } from "@/lib/types";
-import { getClaimPassword, setClaimPassword } from "@/lib/auth";
+import { clearClaimPassword, getClaimPassword, setClaimPassword } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { ClaimFlowchart } from "@/components/ClaimFlowchart";
 
 export default function ClientPage() {
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
-  const id = (params?.id as string) || searchParams?.get("id") || "";
+  const paramsId = params?.id as string | undefined;
+  const queryId = searchParams?.get("id") || undefined;
+  const origin = searchParams?.get("origin") || undefined;
+  const id = paramsId || queryId || "";
+  const isLegacyViewMode = !paramsId && !!queryId;
+  const isEntryFlow = origin === "entry" || isLegacyViewMode;
+  const router = useRouter();
   const { t } = useI18n();
 
   const [claim, setClaim] = useState<ClaimResponse | null>(null);
@@ -25,6 +31,8 @@ export default function ClientPage() {
   type DownUrl = { url: string; expiresAt?: string };
   const [downUrls, setDownUrls] = useState<Record<string, DownUrl>>({});
   const [updating, setUpdating] = useState(false);
+  const passwordSubmittedRef = useRef(false);
+  const pendingPasswordRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!id) return;
@@ -35,7 +43,7 @@ export default function ClientPage() {
 
   const lastLoadIdRef = useRef(0);
   const load = useCallback(async () => {
-    if (!id || !passwordChecked) return;
+    if (!id || !passwordChecked || askPassword) return;
     const thisLoadId = ++lastLoadIdRef.current;
     setLoading(true);
     setError(undefined);
@@ -43,6 +51,11 @@ export default function ClientPage() {
       const c = await Api.getClaim(id, effectivePassword || undefined);
       if (lastLoadIdRef.current !== thisLoadId) return;
       setClaim(c);
+      passwordSubmittedRef.current = false;
+      if (pendingPasswordRef.current !== undefined) {
+        setClaimPassword(id, pendingPasswordRef.current);
+        pendingPasswordRef.current = undefined;
+      }
       // Fetch download URLs for each photo
       if (c.photos && c.photos.length) {
         const entries = await Promise.all(
@@ -61,11 +74,28 @@ export default function ClientPage() {
         setDownUrls({});
       }
     } catch (e: unknown) {
-      if (e instanceof HttpError && (e.status === 401 || e.status === 403)) {
-        // Need or wrong password → open modal
-        setAskPassword(true);
-        // If we already tried with a password, mark error to display feedback
-        setPasswordError(!!effectivePassword);
+      if (e instanceof HttpError && (e.status === 401 || e.status === 403 || e.status === 404)) {
+        // Behavior differs for entry flows (home/new) vs direct link
+        if (isEntryFlow) {
+          // Entry flow from /claim without password → redirect home with unified error
+          router.push(`/?error=idOrPassword&id=${encodeURIComponent(id)}`);
+          return;
+        }
+        // Direct /claim/[id]
+        if (e.status === 401 || e.status === 403) {
+          const hadPasswordAttempt = passwordSubmittedRef.current || !!effectivePassword;
+          passwordSubmittedRef.current = false;
+          pendingPasswordRef.current = undefined;
+          if (hadPasswordAttempt) {
+            clearClaimPassword(id);
+          }
+          setAskPassword(true);
+          setPasswordError(hadPasswordAttempt);
+        } else if (e.status === 404) {
+          // Unknown ID: keep prompt, but don't show wrong-password error
+          setAskPassword(true);
+          setPasswordError(false);
+        }
       } else {
         const msg = e instanceof Error ? e.message : '加载失败';
         setError(msg);
@@ -74,7 +104,7 @@ export default function ClientPage() {
     } finally {
       if (lastLoadIdRef.current === thisLoadId) setLoading(false);
     }
-  }, [id, effectivePassword, passwordChecked]);
+  }, [id, effectivePassword, passwordChecked, isEntryFlow, router, askPassword]);
 
   useEffect(() => {
     void load();
@@ -135,8 +165,14 @@ export default function ClientPage() {
       setClaim(updated);
     } catch (e: unknown) {
       if (e instanceof HttpError && e.status === 403) {
+        const hadPasswordAttempt = !!effectivePassword;
+        passwordSubmittedRef.current = false;
+        pendingPasswordRef.current = undefined;
+        if (hadPasswordAttempt) {
+          clearClaimPassword(id);
+        }
         setAskPassword(true);
-        setPasswordError(!!effectivePassword);
+        setPasswordError(hadPasswordAttempt);
       } else setError(e instanceof Error ? e.message : '更新失败');
     } finally {
       setUpdating(false);
@@ -144,10 +180,10 @@ export default function ClientPage() {
   }
 
   function copyLink() {
-    if (typeof window === 'undefined') return;
-    const u = new URL(window.location.href);
-    u.searchParams.delete('password');
-    navigator.clipboard?.writeText(u.toString()).catch(() => {});
+    if (typeof window === 'undefined' || !id) return;
+    const link = new URL(window.location.origin);
+    link.pathname = `/claim/${encodeURIComponent(id)}`;
+    navigator.clipboard?.writeText(link.toString()).catch(() => {});
   }
 
   // Require password: render only the password prompt, hide page content
@@ -159,8 +195,9 @@ export default function ClientPage() {
           <PasswordPrompt
             onSubmit={(pwd) => {
               if (!id) return;
-              setClaimPassword(id, pwd);
+              pendingPasswordRef.current = pwd;
               setEffectivePassword(pwd);
+              passwordSubmittedRef.current = true;
               setAskPassword(false);
               setPasswordError(false);
             }}

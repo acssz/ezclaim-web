@@ -1,11 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Export as a static site for GitHub Pages
-  output: "export",
-  // Helps GitHub Pages serve directories as index.html
+  // Keep trailing slash for consistent URLs if desired
   trailingSlash: true,
-  // Avoid image optimization server dependency
   images: { unoptimized: true },
 };
 

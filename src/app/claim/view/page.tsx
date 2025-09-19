@@ -1,6 +1,14 @@
-import ClientPage from "../[id]/ClientPage";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return <ClientPage />;
+type PageProps = {
+  searchParams?: { id?: string };
+};
+
+export default function Page({ searchParams }: PageProps) {
+  const id = searchParams?.id;
+  if (!id) {
+    redirect("/");
+  }
+  redirect(`/claim/${encodeURIComponent(id)}?origin=entry`);
 }
 

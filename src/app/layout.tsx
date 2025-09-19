@@ -31,16 +31,15 @@ export default function RootLayout({
         <I18nProvider>
           <header className="w-full border-b border-black/10 dark:border-white/20 sticky top-0 bg-background/80 backdrop-blur z-10">
             <div className="mx-auto max-w-4xl px-4 py-3 flex items-center justify-between">
-              <Link href="/" className="font-semibold tracking-tight">ACSSZ</Link>
+              <Link href="/" className="font-semibold tracking-tight">ACSSZ EzClaim</Link>
               <nav className="flex items-center gap-4">
-                <Link className="hover:underline" href="/claim/new">New Claim</Link>
                 <LangSwitcher />
               </nav>
             </div>
           </header>
           <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
           <footer className="mx-auto max-w-4xl px-4 py-8 text-sm text-black/60 dark:text-white/60">
-            © {new Date().getFullYear()} ACSSZ
+            Built with ♥️ by  © {new Date().getFullYear()} ACSSZ
           </footer>
         </I18nProvider>
       </body>
