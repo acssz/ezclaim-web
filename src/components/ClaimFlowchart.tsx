@@ -20,6 +20,7 @@ export function ClaimFlowchart({ current }: Props) {
       PAID: t("status_PAID"),
       FINISHED: t("status_FINISHED"),
       REJECTED: t("status_REJECTED"),
+      PAYMENT_FAILED: t("status_PAYMENT_FAILED"),
       WITHDRAW: t("status_WITHDRAW"),
     }),
     [t]
@@ -86,6 +87,7 @@ export function ClaimFlowchart({ current }: Props) {
       setNode("PAID");
       setNode("FINISHED");
       setNode("REJECTED");
+      setNode("PAYMENT_FAILED");
       setNode("WITHDRAW");
 
       // Edges
@@ -105,7 +107,7 @@ export function ClaimFlowchart({ current }: Props) {
       edge("PAID", "FINISHED");
       edge("SUBMITTED", "WITHDRAW");
       edge("SUBMITTED", "REJECTED");
-      edge("APPROVED", "REJECTED");
+      edge("APPROVED", "PAYMENT_FAILED");
 
       const svg = d3.select(svgEl);
       svg.selectAll("*").remove();

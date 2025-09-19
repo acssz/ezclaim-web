@@ -27,6 +27,10 @@ type UploadItem = {
 
 const currencies: Currency[] = ["CHF", "USD", "EUR", "CNY", "GBP"];
 
+const INVOICE_REQUIRED_TAG_IDS = new Set<string>([
+  // 在此处填写需要强制上传正规发票的标签 ID，例如 'tag-id-invoice'
+]);
+
 function makeObjectKey(file: File): string {
   const today = new Date().toISOString().slice(0, 10);
   const uuid = (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)) as string;
@@ -60,6 +64,10 @@ export default function NewClaimPage() {
   }, []);
 
   const uploadedPhotos = useMemo(() => uploads.filter((u) => u.status === "done" && !!u.photo).map((u) => u.photo as PhotoResponse), [uploads]);
+  const requiresInvoiceReminder = useMemo(
+    () => selectedTagIds.some((id) => INVOICE_REQUIRED_TAG_IDS.has(id)),
+    [selectedTagIds],
+  );
 
   async function handleFilesChosen(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -258,6 +266,12 @@ export default function NewClaimPage() {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('password')} />
           <input type="password" value={password2} onChange={(e) => setPassword2(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('passwordConfirm')} />
         </section>
+
+        {requiresInvoiceReminder && (
+          <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            {t("invoiceReminder")}
+          </div>
+        )}
 
         {error && <div className="text-sm text-red-600">{error}</div>}
 

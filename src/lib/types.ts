@@ -9,6 +9,7 @@ export type ClaimStatus =
   | 'PAID'
   | 'FINISHED'
   | 'REJECTED'
+  | 'PAYMENT_FAILED'
   | 'WITHDRAW';
 
 export interface PayoutInfo {
