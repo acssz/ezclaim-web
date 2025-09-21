@@ -10,7 +10,12 @@ export class HttpError extends Error {
   }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const defaultApiBase =
+  process.env.NODE_ENV === 'production'
+    ? 'https://ezclaim.liuzisen.com'
+    : 'http://localhost:8080';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || defaultApiBase;
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const hasBody = typeof init?.body !== 'undefined' && init?.body !== null;

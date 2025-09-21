@@ -14,7 +14,9 @@ The public-facing EzClaim web app lets ACSSZ members submit reimbursements witho
 pnpm install
 pnpm dev
 ```
-The app assumes the API at `http://localhost:8080`; override via `NEXT_PUBLIC_API_BASE_URL` in `.env.local` when needed.
+Development defaults to the API at `http://localhost:8080`; production builds fall back to
+`https://ezclaim.liuzisen.com`. Override via `NEXT_PUBLIC_API_BASE_URL` in `.env.local` (or
+`.env.production`) when needed.
 
 ## License
 Licensed under the Do What The Fuck You Want To Public License (WTFPL). See [`LICENCE`](LICENCE).
