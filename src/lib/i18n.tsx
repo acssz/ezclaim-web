@@ -74,8 +74,8 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "确认",
   },
   en: {
-    brand: "ACSSZ Reimbursement",
-    welcome: "Welcome to the ACSSZ Reimbursement System",
+    brand: "ACSSZ EzClaim",
+    welcome: "Welcome to the ACSSZ EzClaim",
     newClaim: "New Claim",
     openExisting: "Open Existing Claim",
     newClaimPrompt: "Want to submit a new claim?",
@@ -134,8 +134,8 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "Confirm",
   },
   "de-CH": {
-    brand: "ACSSZ Spesen",
-    welcome: "Willkommen beim ACSSZ-Spesensystem",
+    brand: "ACSSZ EzClaim",
+    welcome: "Willkommen beim ACSSZ EzClaim",
     newClaim: "Neue Spesen",
     openExisting: "Vorhandene Spesen öffnen",
     newClaimPrompt: "Neue Spesen einreichen?",
@@ -194,8 +194,8 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "Bestätigen",
   },
   fr: {
-    brand: "Remboursement ACSSZ",
-    welcome: "Bienvenue sur le système de remboursement ACSSZ",
+    brand: "ACSSZ EzClaim",
+    welcome: "Bienvenue sur le système de ACSSZ EzClaim",
     newClaim: "Nouvelle note",
     openExisting: "Ouvrir une note existante",
     newClaimPrompt: "Vous voulez créer une nouvelle note ?",
@@ -254,8 +254,8 @@ const dict: Record<Lang, Record<string, string>> = {
     confirm: "Confirmer",
   },
   it: {
-    brand: "Rimborsi ACSSZ",
-    welcome: "Benvenuto nel sistema di rimborsi ACSSZ",
+    brand: "ACSSZ EzClaim",
+    welcome: "Benvenuto nel sistema di ACSSZ EzClaim",
     newClaim: "Nuova nota",
     openExisting: "Apri una nota esistente",
     newClaimPrompt: "Vuoi creare una nuova nota?",
