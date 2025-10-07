@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { setClaimPassword } from "@/lib/auth";
 
-export default function Home() {
+function HomeContent() {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const initialId = searchParams?.get('id') || '';
@@ -52,5 +52,13 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
