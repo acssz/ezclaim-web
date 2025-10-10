@@ -96,7 +96,7 @@ export default function NewClaimPage() {
     if (!Number.isFinite(amt) || amt <= 0) return "报销金额需为正数";
     if (!expenseAt) return "请选择消费发生时间";
     // minimal payout validation
-    if (!payout.iban && !payout.accountNumber) return "请至少填写 IBAN 或 账户号";
+    // if (!payout.iban && !payout.accountNumber) return "请至少填写 IBAN 或 账户号";
     // If password set, require confirmation match
     if (password.trim() && password.trim() !== password2.trim()) return t('passwordMismatch');
   }
