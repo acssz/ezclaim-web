@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ClientPage from "./ClientPage";
 
 export function generateStaticParams() {
@@ -5,5 +6,9 @@ export function generateStaticParams() {
 }
 
 export default function Page() {
-  return <ClientPage />;
+  return (
+    <Suspense fallback={null}>
+      <ClientPage />
+    </Suspense>
+  );
 }

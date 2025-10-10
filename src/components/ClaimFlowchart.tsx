@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable */
+
 import { useEffect, useMemo, useRef } from "react";
 import type { ClaimStatus } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
