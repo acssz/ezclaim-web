@@ -95,9 +95,7 @@ export default function NewClaimPage() {
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) return "报销金额需为正数";
     if (!expenseAt) return "请选择消费发生时间";
-    // minimal payout validation
-    // if (!payout.iban && !payout.accountNumber) return "请至少填写 IBAN 或 账户号";
-    // If password set, require confirmation match
+    if (!recipient.trim()) return "请填写收款人信息";
     if (password.trim() && password.trim() !== password2.trim()) return t('passwordMismatch');
   }
 
@@ -172,13 +170,13 @@ export default function NewClaimPage() {
             <input type="datetime-local" value={expenseAt} onChange={(e) => setExpenseAt(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" />
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('fieldRecipient')}</label>
+            <label className="block text-sm mb-1">{t('fieldRecipient')} *</label>
             <input value={recipient} onChange={(e) => setRecipient(e.target.value)} className="w-full rounded border px-3 py-2 bg-transparent" placeholder={t('fieldRecipient')} />
           </div>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">{t('payoutInfo')} *</h2>
+          <h2 className="text-lg font-medium">{t('payoutInfo')}</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm mb-1">{t('payoutIban')}</label>

@@ -29,7 +29,7 @@ const dict: Record<Lang, Record<string, string>> = {
     fieldAmount: "金额",
     fieldCurrency: "币种",
     fieldExpenseAt: "消费时间",
-    fieldRecipient: "收款人",
+    fieldRecipient: "收款人（中文）",
     payoutInfo: "收款信息（仅首次填写）",
     payoutIban: "IBAN",
     payoutAccount: "账户号",
